@@ -6,12 +6,15 @@ package com.study.radasm.vanhttpclient.VanException;
  * Created by RadAsm on 15/5/20.
  */
 public class VanException extends Exception{
-    /**Get请求参数错误*/
+    /**请求参数为空*/
+    public static final int EMPTY_PARAMS=0;
+    /**请求参数错误*/
     public static final int ILLEGAL_PARAMS=1;
-    /**Get请求返回结果错误*/
+    /**请求返回结果错误*/
     public static final int ERROR_RESULT=2;
 
 
+    public static final String MSG_EMPTY_PARAMS="请求参数为空";
     public static final String MSG_ILLEGAL_PARAMS="请求参数非法";
     public static final String MSG_ERROR_RESULT="返回结果错误";
 
@@ -35,6 +38,10 @@ public class VanException extends Exception{
 
     public VanException(Throwable throwable) {
         super(throwable);
+    }
+
+    public VanException(int error_code){
+        this.error_code=error_code;
     }
 
     public VanException(int error_code,String vanMessage){
