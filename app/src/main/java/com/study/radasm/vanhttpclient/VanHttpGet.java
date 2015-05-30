@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.study.radasm.vanhttpclient.Utils.ClassUtils;
 import com.study.radasm.vanhttpclient.Utils.LogUtils;
+import com.study.radasm.vanhttpclient.Utils.QueryString;
 import com.study.radasm.vanhttpclient.VanCallBack.Callback;
 import com.study.radasm.vanhttpclient.VanException.VanException;
 import com.study.radasm.vanhttpclient.VanException.VanIllegalParamsException;
@@ -59,8 +60,8 @@ public class VanHttpGet {
             while (iterator.hasNext()) {
                 String key = iterator.next();
                 String value = requestParams.get(key);
-                paramsPath.append(key + "=" + value);
-                paramsPath.append("&");
+                String queryString = QueryString.add(key, value);
+                paramsPath.append(queryString);
             }
             //去除掉最后一个“&”
             paramsPath.deleteCharAt(paramsPath.length() - 1);

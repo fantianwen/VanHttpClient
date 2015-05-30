@@ -11,6 +11,8 @@ public class VanIllegalParamsException extends VanException{
     private static final String TAG=VanIllegalParamsException.class.getSimpleName();
 
     public VanIllegalParamsException(){
+        error_code=ILLEGAL_PARAMS;
+        vanMessage=getVanMessage(error_code);
     }
 
     public VanIllegalParamsException(int error_code){
