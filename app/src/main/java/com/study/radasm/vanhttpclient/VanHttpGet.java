@@ -3,9 +3,12 @@ package com.study.radasm.vanhttpclient;
 import android.net.Uri;
 import android.util.Log;
 
+import com.study.radasm.vanhttpclient.Tasks.GetTask;
 import com.study.radasm.vanhttpclient.Utils.ClassUtils;
 import com.study.radasm.vanhttpclient.Utils.LogUtils;
 import com.study.radasm.vanhttpclient.Utils.QueryString;
+import com.study.radasm.vanhttpclient.Utils.ThreadManager;
+import com.study.radasm.vanhttpclient.Utils.UriUtils;
 import com.study.radasm.vanhttpclient.VanCallBack.Callback;
 import com.study.radasm.vanhttpclient.VanException.VanException;
 import com.study.radasm.vanhttpclient.VanException.VanIllegalParamsException;
@@ -31,6 +34,7 @@ public class VanHttpGet {
 
     private static final String TAG = ClassUtils.getSimpleName(VanHttpGet.class);
 
+
     public VanHttpGet() {
 
     }
@@ -42,20 +46,96 @@ public class VanHttpGet {
      * @param apiPath       请求服务器的api接口
      * @param requestParams get请求参数
      */
-    public void execute(Uri baseUri, String apiPath, HashMap<String, String> requestParams,Callback callback) throws IOException, VanIllegalParamsException{
-        HttpClient httpClient = new DefaultHttpClient();
-        String basePath = baseUri.toString();
+    public void execute(Uri baseUri, String apiPath, HashMap<String, String> requestParams, Callback callback) throws IOException, VanIllegalParamsException {
+        String basePath = UriUtils.uri2String(baseUri);
+        execute(basePath, apiPath, requestParams, callback);
 
+    }
+
+    /**
+     * Get异步请求
+     *
+     * @param baseUri       主机url地址
+     * @param apiPath       get请求api
+     * @param requestParams get请求参数
+     * @param callback      请求结果回调
+     */
+    public void asyncExecute(Uri baseUri, String apiPath, HashMap<String, String> requestParams, Callback callback) throws VanIllegalParamsException {
+
+        String basePath = UriUtils.uri2String(baseUri);
+        String requestPath = basePath + apiPath + "?" + catParams(requestParams);
+
+        GetTask getTask = new GetTask(requestPath, callback);
+
+        ThreadManager.executeShort(getTask);
+
+    }
+
+
+    /**
+     * 重载方法 使用String类型的BasePath(同步请求方式)
+     *
+     * @param basePath
+     * @param apiPath
+     * @param requestParams
+     * @param callback
+     */
+    public void execute(String basePath, String apiPath, HashMap<String, String> requestParams, Callback callback) throws VanIllegalParamsException, IOException {
+        HttpClient httpClient = new DefaultHttpClient();
+
+        String requestPath = basePath + apiPath + "?" + catParams(requestParams);
+
+        HttpGet httpGet = new HttpGet(requestPath);
+        HttpResponse response = httpClient.execute(httpGet);
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode == HttpStatus.SC_OK) {
+            //request请求成功
+            LogUtils.i(TAG, "get请求成功！");
+            InputStream is = response.getEntity().getContent();
+            callback.onSuccess(is);
+        } else {
+            Log.e(TAG, "get请求返回异常！");
+            //request请求失败
+            callback.onFailure(statusCode);
+        }
+    }
+
+    /**
+     * Get异步请求(String 方式)
+     *
+     * @param basePath      主机url地址
+     * @param apiPath       get请求api
+     * @param requestParams get请求参数
+     * @param callback      请求结果回调
+     */
+    public void asyncExecute(String basePath, String apiPath, HashMap<String, String> requestParams, Callback callback) throws VanIllegalParamsException {
+
+        String requestPath = basePath + apiPath + "?" + catParams(requestParams);
+
+        GetTask getTask = new GetTask(requestPath, callback);
+
+        ThreadManager.executeShort(getTask);
+
+    }
+
+
+    /**
+     * 拼接请求参数
+     *
+     * @param requestParams
+     * @return
+     * @throws VanIllegalParamsException
+     */
+    public String catParams(HashMap<String, String> requestParams) throws VanIllegalParamsException {
         /**拼接request的地址部分*/
         StringBuffer paramsPath = new StringBuffer();
         Set<String> keys = requestParams.keySet();
-        if(keys.isEmpty()){
+        if (keys.isEmpty()) {
             //为空，抛出异常
-            Log.e(TAG,"请求参数为空！");
+            Log.e(TAG, "请求参数为空！");
             VanIllegalParamsException vanIllegalParamsException = new VanIllegalParamsException(VanException.EMPTY_PARAMS);
-            vanIllegalParamsException.printStackTrace();
             throw vanIllegalParamsException;
-        }else{
+        } else {
             Iterator<String> iterator = keys.iterator();
             while (iterator.hasNext()) {
                 String key = iterator.next();
@@ -65,23 +145,14 @@ public class VanHttpGet {
             }
             //去除掉最后一个“&”
             paramsPath.deleteCharAt(paramsPath.length() - 1);
-            String requestPath = basePath + apiPath + "?" + paramsPath.toString();
-
-            HttpGet httpGet = new HttpGet(requestPath);
-            HttpResponse response = httpClient.execute(httpGet);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if(statusCode== HttpStatus.SC_OK){
-                //request请求成功
-                LogUtils.i(TAG,"get请求成功！");
-                InputStream is = response.getEntity().getContent();
-                callback.onSuccess(is);
-            }else{
-                Log.e(TAG,"get请求返回异常！");
-                //request请求失败
-                callback.onFailure(statusCode);
-            }
+            return paramsPath.toString();
         }
     }
-    //TODO 重载方法的书写 以及需要测试
+
+
+
+
+
 
 }
+
