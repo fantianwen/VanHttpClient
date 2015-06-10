@@ -2,13 +2,17 @@ package com.study.radasm.vanhttpclient.Utils;
 
 import android.util.Log;
 
+import com.study.radasm.vanhttpclient.VanException.VanException;
 import com.study.radasm.vanhttpclient.VanException.VanIllegalParamsException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
- * URI查询部分key-value的拼接
+ * Get请求参数部分的处理
  * <p/>
  * Created by RadAsm on 15/5/30.
  */
@@ -65,5 +69,35 @@ public class QueryString {
         could_add.append(encodedString);
         could_add.append("&");
         return could_add.toString();
+    }
+
+    /**
+     * 拼接请求参数
+     *
+     * @param requestParams
+     * @return
+     * @throws VanIllegalParamsException
+     */
+    public static String catGetParams(HashMap<String, String> requestParams) throws VanIllegalParamsException {
+        /**拼接request的地址部分*/
+        StringBuffer paramsPath = new StringBuffer();
+        Set<String> keys = requestParams.keySet();
+        if (keys.isEmpty()) {
+            //为空，抛出异常
+            Log.e(TAG, "请求参数为空！");
+            VanIllegalParamsException vanIllegalParamsException = new VanIllegalParamsException(VanException.EMPTY_PARAMS);
+            throw vanIllegalParamsException;
+        } else {
+            Iterator<String> iterator = keys.iterator();
+            while (iterator.hasNext()) {
+                String key = iterator.next();
+                String value = requestParams.get(key);
+                String queryString = QueryString.add(key, value);
+                paramsPath.append(queryString);
+            }
+            //去除掉最后一个“&”
+            paramsPath.deleteCharAt(paramsPath.length() - 1);
+            return paramsPath.toString();
+        }
     }
 }
