@@ -15,6 +15,8 @@ public class VanParams {
     /**一个标准的scheme*/
     public static final String stdScheme="http://";
 
+    public static final String stdEncode="UTF-8";
+
     /**默认的超时时间是2000ms*/
     private static final int DEFAULT_TIMEOUT = 2000;
     /**默认的请求方式是GET*/
@@ -28,6 +30,8 @@ public class VanParams {
     public int timeout;
     /**连接请求的方式*/
     public int requestMethod;
+
+    public boolean setCache;
 
 
     public VanParams(String url) {
