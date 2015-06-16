@@ -39,6 +39,13 @@ public class GetCallable implements Callable<String> {
         if(android.text.TextUtils.isEmpty(requestUrl)){
             throw new IllegalArgumentException("请求地址不能为空！");
         }
+        boolean illegalUrl = OtherUtils.isIllegalUrl(requestUrl);
+        if(!illegalUrl){
+            /*加上默认的“http”的scheme*/
+            StringBuilder legalUrlBuilder = new StringBuilder();
+            requestUrl = legalUrlBuilder.append(VanParams.stdScheme).append(requestUrl).toString();
+        }
+
         QueryParams queryParmas = vanParams.queryParmas;
         if(queryParmas==null) {
             //直接使用url进行访问
@@ -49,6 +56,7 @@ public class GetCallable implements Callable<String> {
             urlConnection.setReadTimeout(timeout);
 
             urlConnection.connect();
+
             InputStream inputStream = urlConnection.getInputStream();
             response = OtherUtils.transIs2String(inputStream);
         }

@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         WebService<String> webService = new WebService();
-        String url="http://www.baidu.com";
+        String url="www.baidu.com";
         webService.aynscExecute(url,null).subscribe(s-> Log.e(TAG,s.toString()));
 
 

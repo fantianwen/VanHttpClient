@@ -51,7 +51,7 @@ public class WebService <T> {
      * @param getCall
      * @return
      */
-    public static Observable execute(Callable getCall) {
+    public static <T> Observable<T> execute(Callable getCall) {
         return RxUtils.createObservable(getCall);
     }
 

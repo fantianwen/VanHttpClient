@@ -70,4 +70,16 @@ public class OtherUtils {
     }
 
 
+    /**
+     * 检验一个url是不是合规的Url地址
+     * @param url
+     */
+    public static boolean isIllegalUrl(String url){
+        boolean isIllegal=false;
+        String lowerUrl = url.toLowerCase();
+        if(lowerUrl.startsWith("http")||lowerUrl.startsWith("https")){
+            isIllegal=true;
+        }
+        return isIllegal;
+    }
 }

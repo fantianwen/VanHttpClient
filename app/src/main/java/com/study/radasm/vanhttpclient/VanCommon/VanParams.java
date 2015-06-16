@@ -12,6 +12,9 @@ import rx.functions.Action1;
  * Created by RadAsm on 15/6/15.
  */
 public class VanParams {
+    /**一个标准的scheme*/
+    public static final String stdScheme="http://";
+
     /**默认的超时时间是2000ms*/
     private static final int DEFAULT_TIMEOUT = 2000;
     /**默认的请求方式是GET*/
