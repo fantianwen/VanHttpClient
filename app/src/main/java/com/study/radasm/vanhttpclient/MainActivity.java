@@ -1,14 +1,16 @@
 package com.study.radasm.vanhttpclient;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.lidroid.xutils.HttpUtils;
+import com.study.radasm.vanhttpclient.WebService.WebService;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private HttpUtils httpUtils;
     private String webUserAgent;
@@ -18,65 +20,9 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//
-//        httpUtils = new HttpUtils();
-//
-//
-//
-//        Class sysResCls = null;
-//        try {
-//            sysResCls = Class.forName("com.android.internal.R$string");
-//            Field webUserAgentField = sysResCls.getDeclaredField("web_user_agent");
-//            Integer resId = (Integer) webUserAgentField.get(null);
-//            webUserAgent = this.getString(resId);
-//
-//            Log.e(TAG,webUserAgent);
-//
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        } catch (NoSuchFieldException e) {
-//            e.printStackTrace();
-//        }
-//        DefaultHttpClient defaultHttpClient = new DefaultHttpClient();
-//
-//        ContentProducer contentProducer = new ContentProducer() {
-//            @Override
-//            public void writeTo(OutputStream outputStream) throws IOException {
-//                Writer writer = new OutputStreamWriter(outputStream, "UTF-8");
-//                writer.write(...);//进行内容的书写
-//
-//            }
-//        };
-//        EntityTemplate entityTemplate=new EntityTemplate(contentProducer);
-//
-//
-//        HttpGet httpGet = new HttpGet("www.baidu.com");
-//        ResponseHandler<?> responseHandler=new ResponseHandler<Object>() {
-//            @Override
-//            public Object handleResponse(HttpResponse httpResponse) throws IOException {
-//                return null;
-//            }
-//        };
-//        try {
-//            Object result = defaultHttpClient.execute(httpGet, responseHandler);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//
-//        BasicHttpParams basicHttpParams = new BasicHttpParams();
-//
-//
-//
-//        HttpProtocolParamBean httpProtocolParamBean = new HttpProtocolParamBean(basicHttpParams);
-//        httpProtocolParamBean.setContentCharset();
-//        httpProtocolParamBean.setHttpElementCharset();
-//        httpProtocolParamBean.setUseExpectContinue();
-//        httpProtocolParamBean.setUserAgent();
-//        httpProtocolParamBean.setVersion();
-
+        WebService<String> webService = new WebService();
+        String url="http://www.baidu.com";
+        webService.aynscExecute(url,null).subscribe(s-> Log.e(TAG,s.toString()));
 
 
     }

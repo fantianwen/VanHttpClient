@@ -4,10 +4,12 @@ import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
 
-import com.lidroid.xutils.http.client.DefaultSSLSocketFactory;
+import com.study.radasm.vanhttpclient.common.DefaultSSLSocketFactory;
 
 import org.apache.http.HttpVersion;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.conn.params.ConnPerRouteBean;
@@ -20,6 +22,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.BasicHttpContext;
 
 import java.lang.reflect.Field;
 import java.util.Locale;
@@ -33,8 +36,23 @@ public class VanClient {
      */
     public static final int DEFAULT_SOCKET_TIMEOUT = 0;
 
-    /**默认重新尝试的时间间隔*/
+    /**
+     * 默认重新尝试的时间间隔
+     */
     private final static int DEFAULT_RETRY_TIMES = 3;
+
+    private BasicHttpContext httpContext = new BasicHttpContext();
+    ;
+
+    /**============================成员属性=============================**/
+
+    /**
+     * 配置的cookieStore
+     */
+    private CookieStore cookieStore;
+
+
+    /**============================成员属性=============================**/
 
 
     /**
@@ -96,26 +114,27 @@ public class VanClient {
 
     /**
      * 获取默认的HttpClient，这个HttpClient可以自行定制
+     *
      * @return
      */
-    public static HttpClient getHttpClientInstance(int connTimeout,String userAgent) {
-        setHttpParams(connTimeout,userAgent);
+    public static HttpClient getHttpClientInstance(int connTimeout, String userAgent) {
+        setHttpParams(connTimeout, userAgent);
 
-        ClientConnectionManager conman=null;
-        HttpParams params=null;
+        ClientConnectionManager conman = null;
+        HttpParams params = null;
 
-        SchemeRegistry schreg=null;
-        schreg=new SchemeRegistry();
+        SchemeRegistry schreg = null;
+        schreg = new SchemeRegistry();
         /**http默认的端口号：80*/
         schreg.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
         /**https默认端口号：443*/
         schreg.register(new Scheme("https", DefaultSSLSocketFactory.getSocketFactory(), 443));
         /**一个多线程的client管理器，可以同时处理多个请求*/
-        conman=new ThreadSafeClientConnManager(params,schreg);
+        conman = new ThreadSafeClientConnManager(params, schreg);
 
-        DefaultHttpClient httpClient=new DefaultHttpClient(conman, params);
+        DefaultHttpClient httpClient = new DefaultHttpClient(conman, params);
 
-        RetryHandler retryHandler=new RetryHandler(DEFAULT_RETRY_TIMES);
+        RetryHandler retryHandler = new RetryHandler(DEFAULT_RETRY_TIMES);
 
         /**设置http重连机制*/
         httpClient.setHttpRequestRetryHandler(retryHandler);
@@ -126,10 +145,11 @@ public class VanClient {
 
     /**
      * 设置http连接的基础参数
+     *
      * @param connTimeout 连接超时
-     * @param userAgent 用户代理
+     * @param userAgent   用户代理
      */
-    public static void setHttpParams(int connTimeout,String userAgent){
+    public static void setHttpParams(int connTimeout, String userAgent) {
         HttpParams params = new BasicHttpParams();
 
         ConnManagerParams.setTimeout(params, connTimeout);
@@ -148,5 +168,25 @@ public class VanClient {
         HttpConnectionParams.setSocketBufferSize(params, 1024 * 8);
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
     }
+
+
+    /**
+     * ==========先关Http参数的config，这里最好使用链式的结构进行配置，用户较为方便*
+     */
+
+    /**
+     * 配置用户的CookieStore信息，这个CookieStore信息应该是可以持久化保存的，放置在磁盘上(httpContext对象会帮助我们进行缓存)，方便下次用户再次进入的时候从CookieStore中重拿取。
+     *          cookieStore仅仅是存放cookie对象的。
+     * @param cookieStore
+     * @return
+     */
+    public VanClient configCookieStore(CookieStore cookieStore) {
+        this.cookieStore = cookieStore;
+        httpContext.setAttribute(ClientContext.COOKIE_STORE,cookieStore);
+        return this;
+    }
+
+
+
 
 }
